@@ -37,6 +37,7 @@ Building Docker images
 ----------------------
 
 ```
+docker login
 docker build -t jfim/pinot:latest -f Dockerfile-pinot .
 docker build -t jfim/pinot-server:latest -f Dockerfile-server .
 docker build -t jfim/pinot-broker:latest -f Dockerfile-broker .
@@ -51,3 +52,4 @@ Caveats
 -------
 
 - Persistent volumes aren't configured at all, so stopping any of the instances will eat your data.
+- Kubernetes Pinot instances aren't configured with memory/CPU requirements so the deployment might overcommit resources
