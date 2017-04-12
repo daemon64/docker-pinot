@@ -1,0 +1,9 @@
+FROM jfim/pinot
+
+EXPOSE 9000/tcp
+
+WORKDIR /opt/pinot-0.016
+
+ENTRYPOINT ["bash", "-c", "/opt/pinot-0.016/bin/start-server.sh -zkAddress $ZK_ADDRESS"]
+
+VOLUME ["/pinot-server", "/pinot-broker", "/pinot-controller"]

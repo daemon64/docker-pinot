@@ -1,0 +1,9 @@
+FROM frolvlad/alpine-oraclejdk8
+
+LABEL version="1.1"
+
+RUN apk --update add unzip wget bash ca-certificates
+
+RUN mkdir -p /opt/pinot-0.016 && cd /opt/pinot-0.016 && wget https://github.com/linkedin/pinot/releases/download/SNAPSHOT-2017-04-11T180134Z/pinot-0.016-pkg.zip && unzip pinot-0.016-pkg.zip && rm pinot-0.016-pkg.zip
+
+WORKDIR /opt/pinot-0.016
