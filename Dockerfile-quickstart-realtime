@@ -1,0 +1,7 @@
+FROM jfim/pinot
+
+EXPOSE 9000/tcp
+
+WORKDIR /opt/pinot-0.016
+
+ENTRYPOINT ["bash", "-c", "/opt/pinot-0.016/bin/quick-start-realtime.sh"]
