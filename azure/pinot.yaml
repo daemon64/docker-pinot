@@ -1,0 +1,74 @@
+---
+apiVersion: v1
+kind: ReplicationController
+metadata:
+  name: pinot-controller-deployment
+spec:
+  replicas: 1
+  template:
+    metadata:
+      labels:
+        app: pinot-controller
+    spec:
+      containers:
+      - name: pinot-controller
+        image: jfim/pinot-controller:latest
+        ports:
+        - containerPort: 9000
+        env:
+        - name : ZK_ADDRESS
+          value: "zk-0:2181,zk-1:2181,zk-2:2181"
+---
+apiVersion: v1
+kind: ReplicationController
+metadata:
+  name: pinot-broker-deployment
+spec:
+  replicas: 2
+  template:
+    metadata:
+      labels:
+        app: pinot-broker
+    spec:
+      containers:
+      - name: pinot-broker
+        image: jfim/pinot-broker:latest
+        ports:
+        - containerPort: 9000
+        env:
+        - name : ZK_ADDRESS
+          value: "zk-0:2181,zk-1:2181,zk-2:2181"
+---
+apiVersion: v1
+kind: ReplicationController
+metadata:
+  name: pinot-server-deployment
+spec:
+  replicas: 3
+  template:
+    metadata:
+      labels:
+        app: pinot-server
+    spec:
+      containers:
+      - name: pinot-server
+        image: jfim/pinot-server:latest
+        ports:
+        - containerPort: 9000
+        env:
+        - name : ZK_ADDRESS
+          value: "zk-0:2181,zk-1:2181,zk-2:2181"
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: pinot-controller-headless
+  labels:
+    app: pinot-controller
+spec:
+  type: LoadBalancer
+  ports:
+  - port: 9000
+    name: pinot-controller-api
+  selector:
+    app: pinot-controller
