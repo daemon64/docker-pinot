@@ -86,7 +86,7 @@ spec:
         - name : ZK_REPLICAS
           value: "3"
         - name : ZK_ENSEMBLE
-          value: "zk-0;zk-1;zk-2"
+          value: "zk-0.zk-headless.default.svc.cluster.local;zk-1.zk-headless.default.svc.cluster.local;zk-2.zk-headless.default.svc.cluster.local"
         - name : ZK_HEAP_SIZE
           valueFrom:
             configMapKeyRef:
@@ -169,9 +169,9 @@ metadata:
   labels:
     app: zk-headless
 spec:
-  type: LoadBalancer
   ports:
   - port: 2181
     name: zk-api
+  clusterIP: None
   selector:
     app: zk

@@ -1,9 +1,23 @@
 ---
+kind: PersistentVolumeClaim
 apiVersion: v1
-kind: ReplicationController
 metadata:
-  name: pinot-controller-deployment
+  name: pinot-datadir-pvc
+  annotations:
+    volume.alpha.kubernetes.io/storage-class: anything
 spec:
+  accessModes:
+    - ReadWriteOnce
+  resources:
+    requests:
+      storage: 256Gi
+---
+apiVersion: apps/v1beta1
+kind: StatefulSet
+metadata:
+  name: pinot-controller
+spec:
+  serviceName: pinot-controller-headless
   replicas: 1
   template:
     metadata:
@@ -17,13 +31,21 @@ spec:
         - containerPort: 9000
         env:
         - name : ZK_ADDRESS
-          value: "zk-0:2181,zk-1:2181,zk-2:2181"
+          value: "zk-0.zk-headless.default.svc.cluster.local:2181,zk-1.zk-headless.default.svc.cluster.local:2181,zk-2.zk-headless.default.svc.cluster.local:2181"
+        volumeMounts:
+        - name: pinot-datadir
+          mountPath: /data/pinot-controller-datadir
+      volumes:
+        - name: pinot-datadir
+          persistentVolumeClaim:
+            claimName: pinot-datadir-pvc
 ---
-apiVersion: v1
-kind: ReplicationController
+apiVersion: apps/v1beta1
+kind: StatefulSet
 metadata:
-  name: pinot-broker-deployment
+  name: pinot-broker
 spec:
+  serviceName: pinot-broker-headless
   replicas: 2
   template:
     metadata:
@@ -37,13 +59,14 @@ spec:
         - containerPort: 9000
         env:
         - name : ZK_ADDRESS
-          value: "zk-0:2181,zk-1:2181,zk-2:2181"
+          value: "zk-0.zk-headless.default.svc.cluster.local:2181,zk-1.zk-headless.default.svc.cluster.local:2181,zk-2.zk-headless.default.svc.cluster.local:2181"
 ---
-apiVersion: v1
-kind: ReplicationController
+apiVersion: apps/v1beta1
+kind: StatefulSet
 metadata:
-  name: pinot-server-deployment
+  name: pinot-server
 spec:
+  serviceName: pinot-server-headless
   replicas: 3
   template:
     metadata:
@@ -57,7 +80,13 @@ spec:
         - containerPort: 9000
         env:
         - name : ZK_ADDRESS
-          value: "zk-0:2181,zk-1:2181,zk-2:2181"
+          value: "zk-0.zk-headless.default.svc.cluster.local:2181,zk-1.zk-headless.default.svc.cluster.local:2181,zk-2.zk-headless.default.svc.cluster.local:2181"
+        volumeMounts:
+        - mountPath: /data/pinot-server
+          name: pinot-server-storage
+      volumes:
+      - name: pinot-server-storage
+        emptyDir: {}
 ---
 apiVersion: v1
 kind: Service
@@ -66,9 +95,37 @@ metadata:
   labels:
     app: pinot-controller
 spec:
-  type: LoadBalancer
+  clusterIP: None
   ports:
   - port: 9000
     name: pinot-controller-api
   selector:
     app: pinot-controller
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: pinot-broker-headless
+  labels:
+    app: pinot-broker
+spec:
+  ports:
+  - port: 8099
+    name: pinot-broker-api
+  clusterIP: None
+  selector:
+    app: pinot-broker
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: pinot-server-headless
+  labels:
+    app: pinot-server
+spec:
+  ports:
+  - port: 8098
+    name: pinot-server-api
+  clusterIP: None
+  selector:
+    app: pinot-server
