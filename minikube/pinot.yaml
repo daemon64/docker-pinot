@@ -17,7 +17,7 @@ kind: StatefulSet
 metadata:
   name: pinot-controller
 spec:
-  serviceName: pinot-controller
+  serviceName: pinot-controller-headless
   replicas: 1
   template:
     metadata:
@@ -31,10 +31,10 @@ spec:
         - containerPort: 9000
         env:
         - name : ZK_ADDRESS
-          value: "zk-headless:2181"
+          value: "zk-0.zk-headless.default.svc.cluster.local:2181"
         volumeMounts:
         - name: pinot-datadir
-          mountPath: /var/lib/pinot
+          mountPath: /data/pinot-controller-datadir
       volumes:
         - name: pinot-datadir
           persistentVolumeClaim:
@@ -45,7 +45,7 @@ kind: StatefulSet
 metadata:
   name: pinot-broker
 spec:
-  serviceName: pinot-broker
+  serviceName: pinot-broker-headless
   replicas: 1
   template:
     metadata:
@@ -59,14 +59,14 @@ spec:
         - containerPort: 9000
         env:
         - name : ZK_ADDRESS
-          value: "zk-headless:2181"
+          value: "zk-0.zk-headless.default.svc.cluster.local:2181"
 ---
 apiVersion: apps/v1beta1
 kind: StatefulSet
 metadata:
   name: pinot-server
 spec:
-  serviceName: pinot-server
+  serviceName: pinot-server-headless
   replicas: 2
   template:
     metadata:
@@ -80,7 +80,7 @@ spec:
         - containerPort: 9000
         env:
         - name : ZK_ADDRESS
-          value: "zk-headless:2181"
+          value: "zk-0.zk-headless.default.svc.cluster.local:2181"
         volumeMounts:
         - mountPath: /data/pinot-server
           name: pinot-server-storage
@@ -95,9 +95,37 @@ metadata:
   labels:
     app: pinot-controller
 spec:
-  type: NodePort
+  clusterIP: None
   ports:
   - port: 9000
     name: pinot-controller-api
   selector:
     app: pinot-controller
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: pinot-broker-headless
+  labels:
+    app: pinot-broker
+spec:
+  ports:
+  - port: 8099
+    name: pinot-broker-api
+  clusterIP: None
+  selector:
+    app: pinot-broker
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: pinot-server-headless
+  labels:
+    app: pinot-server
+spec:
+  ports:
+  - port: 8098
+    name: pinot-server-api
+  clusterIP: None
+  selector:
+    app: pinot-server
