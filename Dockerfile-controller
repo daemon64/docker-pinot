@@ -6,4 +6,4 @@ WORKDIR /opt/pinot-0.016
 
 RUN mkdir -p /data/pinot-controller-datadir
 
-ENTRYPOINT ["bash", "-c", "/opt/pinot-0.016/bin/start-controller.sh -zkAddress $ZK_ADDRESS -dataDir /data/pinot-controller-datadir"]
+ENTRYPOINT /opt/pinot-0.016/bin/start-controller.sh -zkAddress $ZK_ADDRESS -dataDir /data/pinot-controller-datadir -controllerHost $(hostname --fqdn)

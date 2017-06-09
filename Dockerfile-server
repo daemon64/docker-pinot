@@ -1,10 +1,10 @@
 FROM jfim/pinot
 
-EXPOSE 9000/tcp
+EXPOSE 8098/tcp
 
 WORKDIR /opt/pinot-0.016
 
 RUN mkdir -p /data/pinot-server/data; \
     mkdir -p /data/pinot-server/segments
 
-ENTRYPOINT ["bash", "-c", "/opt/pinot-0.016/bin/start-server.sh -zkAddress $ZK_ADDRESS -dataDir /data/pinot-server/data -segmentDir /data/pinot-server/segments"]
+ENTRYPOINT /opt/pinot-0.016/bin/start-server.sh -zkAddress $ZK_ADDRESS -dataDir /data/pinot-server/data -segmentDir /data/pinot-server/segments -serverHost $(hostname --fqdn)

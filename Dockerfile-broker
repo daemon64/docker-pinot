@@ -1,7 +1,7 @@
 FROM jfim/pinot
 
-EXPOSE 9000/tcp
+EXPOSE 8099/tcp
 
 WORKDIR /opt/pinot-0.016
 
-ENTRYPOINT ["bash", "-c", "/opt/pinot-0.016/bin/start-broker.sh -zkAddress $ZK_ADDRESS"]
+ENTRYPOINT /opt/pinot-0.016/bin/start-broker.sh -zkAddress $ZK_ADDRESS -brokerHost $(hostname --fqdn)
