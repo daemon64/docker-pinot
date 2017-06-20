@@ -2,7 +2,7 @@ FROM fabric8/java-centos-openjdk8-jdk
 # FROM openjdk:8
 # FROM frolvlad/alpine-oraclejdk8
 
-ENV pinotVersion="SNAPSHOT-2017-06-09T035652Z" archiveName="pinot-0.016-pkg.zip"
+ENV pinotVersion="SNAPSHOT-2017-06-20T222518Z" archiveName="pinot-0.016-pkg.zip"
 
 LABEL version="1.1"
 
