@@ -1,4 +1,5 @@
-FROM jfim/pinot
+ARG pinotVersion
+FROM jfim/pinot:$pinotVersion
 
 EXPOSE 9000/tcp
 
